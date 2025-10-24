@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Smart Support Chat</title>
+    <style>
+        body { font-family: Arial; background: #f5f5f5; padding: 50px; }
+        #chatbox { width: 500px; margin: auto; background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 0 10px #ccc; }
+        #messages { height: 300px; overflow-y: scroll; border: 1px solid #ccc; padding: 10px; margin-bottom: 10px; }
+        .user { color: blue; margin-bottom: 5px; }
+        .bot { color: green; margin-bottom: 5px; }
+    </style>
+</head>
+<body>
+    <div id="chatbox">
+        <h2>💬 Smart Support Chat</h2>
+        <div id="messages"></div>
+        <input type="text" id="message" placeholder="Type your message..." style="width: 80%;">
+        <button onclick="sendMessage()">Send</button>
+    </div>
+
+    <script>
+        function sendMessage() {
+            let msgInput = document.getElementById("message");
+            let msg = msgInput.value;
+            if (msg === "") return;
+
+            let messagesDiv = document.getElementById("messages");
+            messagesDiv.innerHTML += `<div class="user"><b>You:</b> ${msg}</div>`;
+            msgInput.value = "";
+
+            fetch("/get_sentiment", {
+                method: "POST",
+                body: new URLSearchParams({ message: msg }),
+                headers: { "Content-Type": "application/x-www-form-urlencoded" }
+            })
+            .then(response => response.json())
+            .then(data => {
+                messagesDiv.innerHTML += `<div class="bot"><b>Sentiment:</b> ${data.sentiment}</div>`;
+                messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            });
+        }
+    </script>
+</body>
+</html>
+
